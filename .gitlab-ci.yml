@@ -6,7 +6,7 @@ stages:
 
 pre_build:
   stage: pre_build
-  image: node:16
+  image: node:20
   script:
     - npm install
     - npx eslint . || true
