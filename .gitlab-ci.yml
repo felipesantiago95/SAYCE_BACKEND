@@ -36,8 +36,5 @@ deploy:
   image: docker:latest
   services:
     - docker:dind
-  script:
-    - docker build -t my_app .
-    - docker run -d -p 3000:3000 my_app
   only:
     - main
