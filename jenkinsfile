@@ -37,7 +37,7 @@ pipeline {
         stage('Análisis de Código con SonarQube') {
             steps {
                 script {
-                    bat '"C:\\Program Files\\nodejs\\npm.cmd" exec -- sonarqube-scanner -Dsonar.projectKey=MiProyecto -Dsonar.sources=. -Dsonar.host.url=http://localhost:9000 -Dsonar.login=%SONARQUBE_TOKEN%'
+                    bat '"C:\\sonar-scanner-cli-6.2.1.4610-windows-x64\\sonar-scanner-6.2.1.4610-windows-x64\\bin\\sonar-scanner.bat" -Dsonar.projectKey=MiProyecto -Dsonar.sources=. -Dsonar.host.url=http://localhost:9000 -Dsonar.login=%SONARQUBE_TOKEN%'
                 }
             }
         }
