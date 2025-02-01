@@ -1,0 +1,40 @@
+stages:
+  - pre_build
+  - build
+  - test
+  - deploy
+
+pre_build:
+  stage: pre_build
+  image: node:20
+  script:
+    - npm install
+    - npx eslint . || true
+    - npm audit
+  only:
+    - main
+
+build:
+  stage: build
+  image: node:16
+  script:
+    - npm run build
+  only:
+    - main
+
+test:
+  stage: test
+  image: node:16
+  script:
+    - npm install
+    - npm test
+  only:
+    - main
+
+deploy:
+  stage: deploy
+  image: docker:latest
+  services:
+    - docker:dind
+  only:
+    - main
