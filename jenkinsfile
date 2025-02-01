@@ -61,7 +61,9 @@ pipeline {
 
         stage('Despliegue en Entorno Local') {
             steps {
-                bat '"C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker.exe" run -d -p 3000:3000 --name mi-app-container mi-aplicacion:latest || exit 0'
+                bat '"C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker.exe" stop mi-app-container || exit 0'
+                bat '"C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker.exe" rm mi-app-container || exit 0'
+                bat '"C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker.exe" run -d -p 3000:3000 --name mi-app-container mi-aplicacion:latest'
             }
         }
     }
