@@ -12,7 +12,9 @@ USER appuser
 COPY package*.json ./
 
 # Instalar dependencias sin copiar `node_modules` desde el host
-RUN npm install --force && npm rebuild bcrypt --build-from-source
+RUN npm install 
+RUN npm install bcrypt
+RUN npm rebuild 
 
 # Copiar el resto del código fuente después de instalar dependencias
 COPY . .
