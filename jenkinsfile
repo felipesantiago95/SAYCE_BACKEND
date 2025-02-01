@@ -2,8 +2,8 @@ pipeline {
     agent any
 
     environment {
-        SONARQUBE_URL = 'http://localhost:9000'  // URL de SonarQube
-        SONARQUBE_TOKEN = credentials('sonar-token') // Token de autenticación en Jenkins
+        SONARQUBE_URL = 'http://localhost:9000'
+        SONARQUBE_TOKEN = credentials('sonar-token')
     }
 
     stages {
@@ -19,7 +19,12 @@ pipeline {
 
         stage('Instalar Dependencias') {
             steps {
-                bat 'npm install'
+                script {
+                    bat 'rm -rf node_modules package-lock.json'  // Eliminar dependencias previas
+                    bat 'npm install'  // Instalar dependencias de nuevo
+                    bat 'npm rebuild'  // Reconstruir módulos nativos
+                    bat 'npm ci'  // Asegurar instalación limpia de dependencias
+                }
             }
         }
 
