@@ -19,7 +19,8 @@ pipeline {
 
         stage('Instalar Dependencias') {
             steps {
-               bat 'rm -rf node_modules package-lock.json'  // Asegurar instalación limpia
+               bat 'rmdir /s /q node_modules'
+               bat 'del /f /q package-lock.json'
                bat 'npm install'  // Instalar dependencias
                bat 'npm rebuild'  // Reconstruir módulos nativos como bcrypt
                bat 'npm ci'  // Garantizar instalación exacta desde package-lock.json
