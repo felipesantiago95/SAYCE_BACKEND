@@ -44,20 +44,20 @@ pipeline {
 
         stage('Escaneo de Seguridad con Trivy') {
             steps {
-                bat 'docker build -t mi-aplicacion .'
-                bat 'trivy image mi-aplicacion'
+                bat '"C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker.exe" build -t mi-aplicacion .'
+                bat '"C:\\Program Files\\Docker\\Docker\\resources\\bin\\trivy.exe" image mi-aplicacion'
             }
         }
 
         stage('Construir Imagen Docker') {
             steps {
-                bat 'docker build -t mi-aplicacion:latest .'
+                bat '"C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker.exe" build -t mi-aplicacion:latest .'
             }
         }
 
         stage('Despliegue en Entorno Local') {
             steps {
-                bat 'docker run -d -p 3000:3000 --name mi-app-container mi-aplicacion:latest'
+                bat '"C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker.exe" run -d -p 3000:3000 --name mi-app-container mi-aplicacion:latest'
             }
         }
     }
