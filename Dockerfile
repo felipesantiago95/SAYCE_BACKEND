@@ -4,10 +4,6 @@ FROM node:16
 # Configurar directorio de trabajo
 WORKDIR /app
 
-# Asegurar que se usará un usuario no root para mayor seguridad
-RUN useradd --create-home --shell /bin/bash appuser
-USER appuser
-
 # Copiar solo los archivos necesarios para la instalación de dependencias
 COPY package*.json ./
 
