@@ -19,12 +19,10 @@ pipeline {
 
         stage('Instalar Dependencias') {
             steps {
-                script {
-                    bat 'rm -rf node_modules package-lock.json'  // Asegurar instalación limpia
-                    bat 'npm install'  // Instalar dependencias
-                    bat 'npm rebuild'  // Reconstruir módulos nativos como bcrypt
-                    bat 'npm ci'  // Garantizar instalación de dependencias exactas de package-lock.json
-                }
+               bat 'rm -rf node_modules package-lock.json'  // Asegurar instalación limpia
+               bat 'npm install'  // Instalar dependencias
+               bat 'npm rebuild'  // Reconstruir módulos nativos como bcrypt
+               bat 'npm ci'  // Garantizar instalación exacta desde package-lock.json
             }
         }
 
@@ -42,44 +40,36 @@ pipeline {
         stage('Análisis de Código con SonarQube') {
             steps {
                 script {
-                    bat '"C:\\sonar-scanner-cli-6.2.1.4610-windows-x64\\sonar-scanner-6.2.1.4610-windows-x64\\bin\\sonar-scanner.bat" '
-                    bat '-Dsonar.projectKey=MiProyecto -Dsonar.sources=. -Dsonar.host.url=http://localhost:9000 -Dsonar.login=%SONARQUBE_TOKEN%'
+                    bat '"C:\\sonar-scanner-cli-6.2.1.4610-windows-x64\\sonar-scanner-6.2.1.4610-windows-x64\\bin\\sonar-scanner.bat" -Dsonar.projectKey=MiProyecto -Dsonar.sources=. -Dsonar.host.url=http://localhost:9000 -Dsonar.login=%SONARQUBE_TOKEN%'
                 }
             }
         }
 
         stage('Escaneo de Seguridad con Trivy') {
             steps {
-                script {
-                    bat '"C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker.exe" build -t mi-aplicacion .'
-                    bat '"C:\\Program Files\\trivy\\trivy.exe" image mi-aplicacion || exit 0' // Evita que falle el pipeline si hay vulnerabilidades
-                }
+                bat '"C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker.exe" build -t mi-aplicacion .'
+                bat '"C:\\Program Files\\trivy\\trivy.exe" image mi-aplicacion'
             }
         }
 
         stage('Construir Imagen Docker') {
             steps {
-                script {
-                    bat '"C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker.exe" build -t mi-aplicacion:latest .'
-                }
+                bat '"C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker.exe" build -t mi-aplicacion:latest .'
             }
         }
 
         stage('Despliegue en Entorno Local') {
             steps {
-                script {
-                    bat '"C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker.exe" run -d -p 3000:3000 --name mi-app-container mi-aplicacion:latest || exit 0'
-                }
+                bat '"C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker.exe" run -d -p 3000:3000 --name mi-app-container mi-aplicacion:latest || exit 0'
             }
         }
     }
-
-    post {
-        success {
-            echo "Pipeline ejecutado exitosamente."
-        }
-        failure {
-            echo "El pipeline ha fallado. Revisar los logs para más detalles."
-        }
+post {
+    success {
+        echo "✅ Pipeline ejecutado exitosamente."
     }
+    failure {
+        echo "❌ El pipeline ha fallado. Revisar los logs para más detalles."
+    }
+}
 }
