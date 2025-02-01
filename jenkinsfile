@@ -11,8 +11,8 @@ pipeline {
             steps {
                 script {
                     echo 'Verificando Node.js y npm'
-                    bat 'node -v'
-                    bat 'npm -v'
+                    bat '"C:\\Program Files\\nodejs\\node.exe" -v'
+                    bat '"C:\\Program Files\\nodejs\\npm.cmd" -v'
                 }
             }
         }
@@ -36,8 +36,8 @@ pipeline {
 
         stage('Análisis de Código con SonarQube') {
             steps {
-                withSonarQubeEnv('SonarQube') {
-                    bat "npx sonarqube-scanner -Dsonar.login=${SONARQUBE_TOKEN}"
+                script {
+                    bat '"C:\\Program Files\\nodejs\\npm.cmd" exec -- sonarqube-scanner -Dsonar.projectKey=MiProyecto -Dsonar.sources=. -Dsonar.host.url=http://localhost:9000 -Dsonar.login=%SONARQUBE_TOKEN%'
                 }
             }
         }
