@@ -45,7 +45,7 @@ pipeline {
         stage('Escaneo de Seguridad con Trivy') {
             steps {
                 bat '"C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker.exe" build -t mi-aplicacion .'
-                bat '"C:\\Program Files\\Docker\\Docker\\resources\\bin\\trivy.exe" image mi-aplicacion'
+                bat '"C:\\Program Files\\trivy\\trivy.exe" image mi-aplicacion'
             }
         }
 
