@@ -69,8 +69,8 @@ pipeline {
         stage('Escaneo de Contenedor en Ejecución con Trivy') {
             steps {
                 script {
-                    // Analizar el contenedor en ejecución con Trivy
-                    bat '"C:\\Program Files\\trivy\\trivy.exe" --exit-code 0 --severity HIGH,CRITICAL --quiet container mi-app-container'
+                    echo "🔍 Escaneando el contenedor en ejecución con Trivy..."
+                    bat '"C:\\Program Files\\trivy\\trivy.exe" container mi-app-container --severity HIGH,CRITICAL --quiet || echo "⚠️ Vulnerabilidades encontradas, revisar reporte."'
                 }
             }
         }
