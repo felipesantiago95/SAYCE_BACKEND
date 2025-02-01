@@ -21,8 +21,8 @@ pipeline {
             steps {
                bat 'rmdir /s /q node_modules'
                bat 'del /f /q package-lock.json'
-               bat 'npm install'  // Instalar dependencias
-               bat 'npm rebuild'  // Reconstruir módulos nativos como bcrypt
+               bat 'npm install --force'  // Instalar dependencias forzando recompilación
+               bat 'npm rebuild bcrypt --build-from-source'  // Recompilar bcrypt para el entorno actual
                bat 'npm ci'  // Garantizar instalación exacta desde package-lock.json
             }
         }
