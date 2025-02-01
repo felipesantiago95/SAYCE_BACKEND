@@ -1,5 +1,6 @@
 const { Client } = require('pg');
 require('dotenv').config();
+const bcrypt = require('bcrypt');
 
 const client = new Client({
   host: process.env.DB_HOST,
@@ -55,25 +56,22 @@ class UsuariosService {
 
   // Método para actualizar un registro existente en la tabla usuarios
   async update(id, changes) {
+    console.log("cambios: ",changes)
     const query = `
       UPDATE public.usuarios SET
         email=$1,
-        password=$2,
-        nombres=$3,
-        apellidos=$4,
-        cargo=$5,
-        creado_en=$6,
-        actualizado_en=$7
-      WHERE usuario_id=$8 RETURNING *`;
+        nombres=$2,
+        apellidos=$3,
+        actualizado_en=$4,
+        rol=$5
+      WHERE usuario_id=$6 RETURNING *`;
 
     const values = [
       changes.email,
-      changes.password,
       changes.nombres,
       changes.apellidos,
-      changes.cargo,
-      changes.creado_en || new Date(),
       changes.actualizado_en || new Date(),
+      changes.rol,
       id
     ];
 
@@ -86,6 +84,40 @@ class UsuariosService {
     const query = 'DELETE FROM public.usuarios WHERE usuario_id = $1 RETURNING *';
     const res = await client.query(query, [id]);
     return res.rows[0];
+  }
+  async findByEmail(email) {
+    const query = 'SELECT * FROM usuarios WHERE email = $1';
+    const result = await client.query(query, [email]);
+    return result.rows[0];
+  }
+
+  async savePasswordResetToken(userId, token) {
+    const expiration = new Date(Date.now() + 3600000); // 1 hora
+    const query = `
+      UPDATE usuarios
+      SET reset_token = $1, reset_token_expiration = $2
+      WHERE id = $3
+    `;
+    await client.query(query, [token, expiration, userId]);
+  }
+
+  async verifyResetToken(token) {
+    const query = `
+      SELECT id FROM usuarios
+      WHERE reset_token = $1 AND reset_token_expiration > NOW()
+    `;
+    const result = await client.query(query, [token]);
+    return result.rows[0]?.id;
+  }
+
+  async updatePassword(userId, newPassword) {
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    const query = `
+      UPDATE usuarios
+      SET password = $1, reset_token = NULL, reset_token_expiration = NULL
+      WHERE id = $2
+    `;
+    await client.query(query, [hashedPassword, userId]);
   }
 }
 

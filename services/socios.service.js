@@ -17,6 +17,10 @@ class SociosService {
     const res = await client.query('SELECT * FROM public.socios');
     return res.rows;
   }
+  async find_des_All() {
+    const res = await client.query('SELECT * FROM public.socios_desafiliacion');
+    return res.rows;
+  }
 
   async findOne(id) {
     const res = await client.query('SELECT * FROM public.socios WHERE socio_id = $1', [id]);
@@ -58,6 +62,53 @@ class SociosService {
     const res = await client.query(query, values);
     return res.rows[0];
   }
+  async create_min(data) {
+    const query = `
+      INSERT INTO public.socios (
+      ip_provisional,
+      codigo_provisional,
+      codigo_socio,
+      cedula,
+      apellidos,
+      nombres,
+      seudonimo_banda,
+      observacion,
+      bono,
+      seguros_valor,
+      genero,
+      vivo_fallecido,
+      fecha_de_nacimiento,
+      telefono_celular,
+      correo,
+      direccion
+    ) VALUES (
+      $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16
+    ) RETURNING *;
+    `;
+
+    const values = [
+      data.ip_provisional,
+      data.codigo_provisional,
+      data.codigo_socio,
+      data.cedula,
+      data.apellidos,
+      data.nombres,
+      data.seudonimo_banda,
+      data.observacion,
+      data.bono,
+      data.seguros_valor,
+      data.genero,
+      data.vivo_fallecido,
+      data.fecha_de_nacimiento,
+      data.telefono_celular,
+      data.correo,
+      data.direccion,
+    ];
+
+    const res = await client.query(query, values);
+    return res.rows[0];
+  }
+
 
   async update(id, changes) {
     const query = `

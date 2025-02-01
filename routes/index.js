@@ -17,6 +17,7 @@ const obrasRouter = require('./obrasRouter');
 const contratosRouter = require('./contratos.router');
 const regaliasRouter = require('./regalias.router'); // Nueva ruta para regalias
 const facturasRouter = require('./facturas.router');
+const documentacion_obras = require('./documentacionObrasRouter');
 //const { verificarToken } = require('./middlewares/auth');
 
 function routerApi(app) {
@@ -40,6 +41,7 @@ function routerApi(app) {
   app.use('/contratos', contratosRouter);
   app.use('/regalias', regaliasRouter); // Integración de la nueva ruta
   app.use('/facturas', facturasRouter);
+  app.use('/docu-obras', documentacion_obras);
 }
 
 module.exports = routerApi;

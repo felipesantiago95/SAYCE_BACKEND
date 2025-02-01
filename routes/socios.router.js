@@ -14,6 +14,14 @@ router.get('/', verificarRol(['administrador', 'supervisor', 'operador']), async
     next(error);
   }
 });
+router.get('/desafiliados', verificarRol(['administrador', 'supervisor', 'operador']), async (req, res, next) => {
+  try {
+    const socios = await service.find_des_All();
+    res.json(socios);
+  } catch (error) {
+    next(error);
+  }
+});
 
 // Ruta para obtener un socio por ID (accesible por administrador, supervisor y operador)
 router.get('/:id', verificarRol(['administrador', 'supervisor', 'operador']), async (req, res, next) => {
@@ -31,6 +39,15 @@ router.post('/', verificarRol(['administrador', 'supervisor']), async (req, res,
   try {
     const body = req.body;
     const newSocio = await service.create(body);
+    res.status(201).json(newSocio);
+  } catch (error) {
+    next(error);
+  }
+});
+router.post('/min', verificarRol(['administrador', 'supervisor']), async (req, res, next) => {
+  try {
+    const body = req.body;
+    const newSocio = await service.create_min(body);
     res.status(201).json(newSocio);
   } catch (error) {
     next(error);

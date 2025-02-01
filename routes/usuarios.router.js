@@ -1,4 +1,6 @@
 const express = require('express');
+const crypto = require('crypto');
+const nodemailer = require('nodemailer');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
@@ -115,5 +117,93 @@ router.delete(
     }
   }
 );
+
+
+
+router.post('/forgot-password', async (req, res) => {
+  const { email } = req.body;
+
+  try {
+    // Verificar si el correo existe en la base de datos
+    const user = await usuariosService.findByEmail(email);
+    if (!user) {
+      return res.status(404).json({ message: 'Usuario no encontrado.' });
+    }
+    console.log("ususario encontrado por email: ",user)
+    // Generar un token único
+    const token = crypto.randomBytes(32).toString('hex');
+
+    // Guardar el token y su expiración en la base de datos
+    //await usuariosService.savePasswordResetToken(user.usuario_id, token);
+
+    // Crear el enlace para la recuperación de contraseña
+    const resetLink = `http://localhost:8081/reset-password?token=${token}`;
+console.log("mail: ",process.env.EMAIL_USER," pass",process.env.EMAIL_PASS)
+    // Configurar transportador para Office365
+    const transporter = nodemailer.createTransport({
+      host: 'smtp.office365.com',
+      port: 587,
+      secure: false,
+      auth: {
+        user: process.env.EMAIL_USER, // Correo de Office365
+        pass: process.env.EMAIL_PASS, // Contraseña de Office365
+      },
+    });
+
+    // Configurar y enviar el correo
+    await transporter.sendMail({
+      from: `"Soporte Técnico" <${process.env.EMAIL_USER}>`, // Correo del remitente
+      to: email,
+      subject: 'Recuperación de Contraseña',
+      html: `
+        <p>Hola,</p>
+        <p>Hemos recibido una solicitud para restablecer tu contraseña. Si no fuiste tú, ignora este mensaje.</p>
+        <p>Para restablecer tu contraseña, haz clic en el siguiente enlace:</p>
+        <a href="${resetLink}">${resetLink}</a>
+        <p>Este enlace expirará en 1 hora.</p>
+        <p>Gracias,</p>
+        <p>Equipo de Soporte</p>
+      `,
+    });
+
+    res.json({ message: 'Correo de recuperación enviado correctamente.' });
+  } catch (error) {
+    console.error('Error en forgot-password:', error);
+    res.status(500).json({ message: 'Error al procesar la solicitud.' });
+  }
+});
+
+
+router.put('/:id', verificarRol(['administrador', 'supervisor']), async (req, res, next) => {
+  try {
+    const { id } = req.params; // ID del usuario a actualizar
+    const changes = req.body; // Cambios enviados desde el frontend
+    console.log(req.body);
+    const updatedUser = await usuariosService.update(id, changes);
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: 'Usuario no encontrado.' });
+    }
+    res.status(200).json(updatedUser);
+  } catch (error) {
+    console.error('Error al actualizar el usuario:', error);
+    res.status(500).json({ message: 'Error interno del servidor.' });
+  }
+});
+
+// Endpoint para restablecer contraseña
+router.post('/reset-password', async (req, res) => {
+  const { token, newPassword } = req.body;
+  try {
+    const userId = await usuariosService.verifyResetToken(token);
+    if (!userId) {
+      return res.status(400).json({ message: 'Token inválido o expirado.' });
+    }
+    await service.updatePassword(userId, newPassword);
+    res.json({ message: 'Contraseña restablecida con éxito.' });
+  } catch (error) {
+    res.status(500).json({ message: 'Error al restablecer la contraseña.' });
+  }
+});
 
 module.exports = router;

@@ -24,7 +24,7 @@ class RegaliasService {
     if (res.rows.length === 0) {
       throw new Error('Regalia not found');
     }
-    return res.rows[0];
+    return res.rows;
   }
 
   async create(data) {

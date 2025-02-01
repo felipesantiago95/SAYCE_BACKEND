@@ -1,0 +1,59 @@
+pipeline {
+    agent any
+
+    environment {
+        SONARQUBE_URL = 'http://localhost:9000'  // URL de SonarQube
+        SONARQUBE_TOKEN = credentials('sonar-token') // Token de autenticación en Jenkins
+    }
+
+    stages {
+        stage('Preparar Entorno') {
+            steps {
+                script {
+                    echo 'Verificando Node.js y npm'
+                    bat 'node -v'
+                    bat 'npm -v'
+                }
+            }
+        }
+
+        stage('Instalar Dependencias') {
+            steps {
+                bat 'npm install'
+            }
+        }
+
+        stage('Ejecutar Pruebas') {
+            steps {
+                bat 'npm test'
+            }
+        }
+
+        stage('Análisis de Código con SonarQube') {
+            steps {
+                withSonarQubeEnv('SonarQube') {
+                    bat 'npx sonarqube-scanner'
+                }
+            }
+        }
+
+        stage('Escaneo de Seguridad con Trivy') {
+            steps {
+                bat 'docker build -t mi-aplicacion .'
+                bat 'trivy image mi-aplicacion'
+            }
+        }
+
+        stage('Construir Imagen Docker') {
+            steps {
+                bat 'docker build -t mi-aplicacion:latest .'
+            }
+        }
+
+        stage('Despliegue en Entorno Local') {
+            steps {
+                bat 'docker run -d -p 3000:3000 --name mi-app-container mi-aplicacion:latest'
+            }
+        }
+    }
+}
